@@ -116,6 +116,36 @@ A WhatsApp-style chat page runs the actual agent (`runAgent`) with `USE_MOCK_SHO
 so it tracks the canned order, refuses COD, recommends products, and shows the human-handoff
 step — all locally. `src/demo.ts` is standalone and never touches Wati.
 
+## Product card template
+
+Recommendations are shown as **product cards** (image + title + price + stock + a "View
+product" button). In WhatsApp a real card like this can only be sent with an **approved
+message template** — the free-form session API has no product-card type. So:
+
+- **No template configured** (`WATI_PRODUCT_TEMPLATE` blank, the default): each product is
+  sent as an **image + caption** (title, price, in-stock, tappable link). Works inside the
+  24h window, needs no approval. This is the safe default.
+- **Template configured**: `sendProductCards` sends the approved template per product (up to
+  3), giving the true card look.
+
+To enable real cards, create this template in **Wati → Templates** (or WhatsApp Manager) and
+submit it for Meta approval, then set `WATI_PRODUCT_TEMPLATE` to its name:
+
+- **Category**: Marketing (or Utility if you frame it as an order-related suggestion).
+- **Header**: **Media → Image** (dynamic — the product photo).
+- **Body**: `*{{title}}*` on line 1, `{{price}} · {{stock}}` on line 2.
+- **Button**: **Visit website (URL)**, text `View product`, URL = `https://achivr.in/{{url}}`
+  (static base + one dynamic suffix; the bot passes `products/<handle>` as the suffix).
+
+The bot fills these via Wati's `sendTemplateMessage` params (`image`, `title`, `price`,
+`stock`, `url`). Approval usually takes minutes–hours. Until approved, leave
+`WATI_PRODUCT_TEMPLATE` blank and the image+caption fallback is used.
+
+> Note: WhatsApp carousels (multiple cards, swipeable) are a separate template type and
+> aren't reliably sendable through Wati's simple template API — this uses one card per
+> product, sent as up to three template messages. The local demo renders them as a
+> swipeable carousel for presentation.
+
 ## Notes
 - Identity = the WhatsApp number. Order/refund lookups are filtered to orders whose phone
   matches it (`phoneMatches` in `src/shopify.ts`), so customers can only read their own. If

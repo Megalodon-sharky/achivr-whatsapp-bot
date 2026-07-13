@@ -6,6 +6,7 @@ import { notifyHumanAgent } from "./handoff";
 import {
   sendText,
   sendButtons,
+  sendProductCards,
   markRead,
   parseIncoming,
   type IncomingMessage,
@@ -84,6 +85,8 @@ async function processWithAgent(session: Session, text: string): Promise<void> {
   }
   pushTurn(session.phone, { role: "assistant", content: result.text });
   await sendText(session.phone, result.text);
+  // Product recommendations render as cards (image + price + stock + link) after the text.
+  if (result.cards?.length) await sendProductCards(session.phone, result.cards);
 }
 
 async function escalate(

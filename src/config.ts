@@ -31,6 +31,11 @@ export const config = {
     // Optional operator email to auto-assign on handoff. Blank = leave unassigned for
     // Wati's own auto-routing to pick up.
     agentEmail: process.env.WATI_AGENT_EMAIL ?? "",
+    // Name of the APPROVED WhatsApp template used to render product recommendations as
+    // cards (image header + body + "View product" URL button). Blank = fall back to a
+    // plain image+caption message (works in-session, needs no template approval). See
+    // README "Product card template" for the template to create in WhatsApp Manager.
+    productTemplate: process.env.WATI_PRODUCT_TEMPLATE ?? "",
   },
 
   // Claude
